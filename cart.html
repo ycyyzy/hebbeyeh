@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>購物車 - Fisch Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 複製基礎樣式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        header, nav {
+            /* 複製 header 和 nav 的樣式 */
+        }
+
+        .cart-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .cart-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .cart-items {
+            margin-bottom: 30px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 20px;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-title {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .item-price {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .quantity-btn {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
+
+        .remove-item {
+            color: #ff4444;
+            cursor: pointer;
+            margin-left: 20px;
+        }
+
+        .cart-summary {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .checkout-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .checkout-btn:hover {
+            background-color: #45a049;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 50px 0;
+            color: #666;
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            padding: 50px 20px;
+            color: #666;
+        }
+
+        .empty-cart-message i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .return-to-shop {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .return-to-shop:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fisch Shop</h1>
+        <p>精品手機配件專賣</p>
+    </header>
+
+    <nav>
+        <a href="index.html">首頁</a>
+        <a href="categories.html">商品分類</a>
+        <a href="cart.html" class="cart-icon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count">0</span>
+        </a>
+        <a href="contact.html">聯絡我們</a>
+    </nav>
+
+    <div class="cart-container">
+        <h2 class="cart-title">購物車</h2>
+        
+        <div id="cartContent">
+            <!-- 這裡的內容會由 JavaScript 動態生成 -->
+        </div>
+
+        <div id="cartSummary" style="display: none;">
+            <div class="cart-summary">
+                <div class="summary-item">
+                    <span>小計</span>
+                    <span id="subtotal">NT$0</span>
+                </div>
+                <div class="summary-item">
+                    <span>運費</span>
+                    <span>NT$60</span>
+                </div>
+                <div class="summary-item" style="font-weight: bold; font-size: 1.2em;">
+                    <span>總計</span>
+                    <span id="total">NT$0</span>
+                </div>
+                <button class="checkout-btn">前往結帳</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 從 localStorage 獲取購物車數據
+            const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            updateCartDisplay(cartItems);
+        });
+
+        function updateCartDisplay(cartItems) {
+            const cartContent = document.getElementById('cartContent');
+            const cartSummary = document.getElementById('cartSummary');
+
+            if (cartItems.length === 0) {
+                // 顯示空購物車訊息
+                cartContent.innerHTML = `
+                    <div class="empty-cart-message">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>您的購物車是空的</h3>
+                        <p>快去選購喜歡的商品吧！</p>
+                        <a href="index.html" class="return-to-shop">繼續購物</a>
+                    </div>
+                `;
+                cartSummary.style.display = 'none';
+            } else {
+                // 顯示購物車商品
+                let cartHTML = '<div class="cart-items">';
+                let subtotal = 0;
+
+                cartItems.forEach((item, index) => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+
+                    cartHTML += `
+                        <div class="cart-item">
+                            <img src="${item.image}" alt="${item.name}">
+                            <div class="item-details">
+                                <h3 class="item-title">${item.name}</h3>
+                                <p class="item-price">NT$${item.price}</p>
+                                <div class="item-quantity">
+                                    <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                                    <span>${item.quantity}</span>
+                                    <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                                    <span class="remove-item" onclick="removeItem(${index})">
+                                        <i class="fas fa-trash"></i> 刪除
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                cartHTML += '</div>';
+                cartContent.innerHTML = cartHTML;
+                cartSummary.style.display = 'block';
+
+                // 更新總金額
+                document.getElementById('subtotal').textContent = `NT$${subtotal}`;
+                document.getElementById('total').textContent = `NT$${subtotal + 60}`; // 加上運費
+            }
+
+            // 更新購物車圖標數量
+            updateCartCount(cartItems);
+        }
+
+        function updateCartCount(cartItems) {
+            const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            document.querySelector('.cart-count').textContent = totalItems;
+        }
+
+        function updateQuantity(index, change) {
+            const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            if (cartItems[index]) {
+                cartItems[index].quantity = Math.max(1, cartItems[index].quantity + change);
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+                updateCartDisplay(cartItems);
+            }
+        }
+
+        function removeItem(index) {
+            const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            cartItems.splice(index, 1);
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            updateCartDisplay(cartItems);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手機吊飾 - Fisch Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 複製 index.html 的樣式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #333;
+            padding: 10px 0;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+        }
+        nav a:hover {
+            background-color: #575757;
+        }
+        .category-nav {
+            background-color: #f5f5f5;
+            padding: 15px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .category-nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+        }
+        .category-nav a {
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .category-nav a:hover {
+            color: #4CAF50;
+        }
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .product {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 280px;
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            position: relative;
+        }
+        .product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .product img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .description {
+            color: #666;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+        .price {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .product-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+        .add-to-cart {
+            background-color: #ee4d2d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .add-to-cart:hover {
+            background-color: #d73211;
+        }
+        .product-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff4444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        .cart-icon {
+            position: relative;
+        }
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.8em;
+        }
+        /* 購物車模態框樣式 */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 20px;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .cart-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        .quantity-input {
+            width: 60px;
+            height: 32px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .add-to-cart-confirm {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+        .success-message {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fisch Shop</h1>
+        <p>精品手機配件專賣</p>
+    </header>
+
+    <nav>
+        <a href="index.html">首頁</a>
+        <a href="categories.html">商品分類</a>
+        <a href="cart.html" class="cart-icon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count">0</span>
+        </a>
+        <a href="contact.html">聯絡我們</a>
+    </nav>
+
+    <div class="category-nav">
+        <ul>
+            <li><a href="phone-straps.html" style="color: #4CAF50;">手機吊飾</a></li>
+            <li><a href="card-holders.html">卡套</a></li>
+            <li><a href="storage-boxes.html">收納盒</a></li>
+            <li><a href="new-arrivals.html">新品上市</a></li>
+            <li><a href="promotions.html">優惠專區</a></li>
+        </ul>
+    </div>
+
+    <section class="products">
+        <div class="product">
+            <span class="product-tag">熱銷</span>
+            <img src="y2k-butterfly.jpg" alt="Y2K甜酷辣妹蝴蝶結愛心吊飾">
+            <h3>Y2K甜酷辣妹蝴蝶結愛心</h3>
+            <p class="description">甜美可愛風格，金屬愛心裝飾，完美展現Y2K風格</p>
+            <p class="price">NT$299</p>
+            <div class="product-buttons">
+                <a href="product-details.html?id=1" style="text-decoration: none; color: #4CAF50;">查看詳情</a>
+                <a href="#" class="add-to-cart">加入購物車</a>
+            </div>
+        </div>
+
+        <div class="product">
+            <img src="sea-star.jpg" alt="海風星星吊飾">
+            <h3>海風星星</h3>
+            <p class="description">清新海洋風格，星星造型設計，展現夏日氛圍</p>
+            <p class="price">NT$259</p>
+            <div class="product-buttons">
+                <a href="product-details.html?id=2" style="text-decoration: none; color: #4CAF50;">查看詳情</a>
+                <a href="#" class="add-to-cart">加入購物車</a>
+            </div>
+        </div>
+
+        <div class="product">
+            <span class="product-tag">新品</span>
+            <img src="ins-bear.jpg" alt="ins風蝴蝶結黑粉色小熊吊飾">
+            <h3>ins風蝴蝶結黑粉色小熊</h3>
+            <p class="description">時尚ins風格，黑粉配色，可愛小熊造型</p>
+            <p class="price">NT$329</p>
+            <div class="product-buttons">
+                <a href="product-details.html?id=3" style="text-decoration: none; color: #4CAF50;">查看詳情</a>
+                <a href="#" class="add-to-cart">加入購物車</a>
+            </div>
+        </div>
+
+        <div class="product">
+            <img src="baroque-pearl-1.jpg" alt="巴洛克珍珠吊飾1">
+            <h3>巴洛克珍珠1</h3>
+            <p class="description">優雅巴洛克風格，天然珍珠，獨特造型</p>
+            <p class="price">NT$399</p>
+            <div class="product-buttons">
+                <a href="product-details.html?id=4" style="text-decoration: none; color: #4CAF50;">查看詳情</a>
+                <a href="#" class="add-to-cart">加入購物車</a>
+            </div>
+        </div>
+
+        <div class="product">
+            <img src="baroque-pearl-2.jpg" alt="巴洛克珍珠吊飾2">
+            <h3>巴洛克珍珠2</h3>
+            <p class="description">奢華巴洛克設計，精選珍珠，華麗點綴</p>
+            <p class="price">NT$399</p>
+            <div class="product-buttons">
+                <a href="product-details.html?id=5" style="text-decoration: none; color: #4CAF50;">查看詳情</a>
+                <a href="#" class="add-to-cart">加入購物車</a>
+            </div>
+        </div>
+
+        <div class="product">
+            <span class="product-tag">熱銷</span>
+            <img src="korean-vintage.jpg" alt="韓風復古吊飾">
+            <h3>韓風復古</h3>
+            <p class="description">復古韓式風格，典雅設計，百搭款式</p>
+            <p class="price">NT$279</p>
+            <div class="product-buttons">
+                <a href="product-details.html?id=6" style="text-decoration: none; color: #4CAF50;">查看詳情</a>
+                <a href="#" class="add-to-cart">加入購物車</a>
+            </div>
+        </div>
+
+        <div class="product">
+            <img src="ins-butterfly.jpg" alt="ins風蝴蝶結吊飾">
+            <h3>ins風蝴蝶結</h3>
+            <p class="description">時尚ins風格，精緻蝴蝶結設計，甜美可愛</p>
+            <p class="price">NT$289</p>
+            <div class="product-buttons">
+                <a href="product-details.html?id=7" style="text-decoration: none; color: #4CAF50;">查看詳情</a>
+                <a href="#" class="add-to-cart">加入購物車</a>
+            </div>
+        </div>
+
+        <div class="product">
+            <span class="product-tag">限量</span>
+            <img src="hello-kitty-pink.jpg" alt="Hello Kitty粉色蝴蝶吊飾">
+            <h3>Hello Kitty粉色蝴蝶</h3>
+            <p class="description">正版授權，粉色蝴蝶設計，可愛度滿分</p>
+            <p class="price">NT$359</p>
+            <div class="product-buttons">
+                <a href="product-details.html?id=8" style="text-decoration: none; color: #4CAF50;">查看詳情</a>
+                <a href="#" class="add-to-cart">加入購物車</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 複製 index.html 的 footer 和 modal 相關內容 -->
+
+    <!-- 購物車模態框 -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-modal-header">
+            <h3>選擇商品數量</h3>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="product-info">
+            <img src="" alt="" style="width: 80px; height: 80px; object-fit: cover;">
+            <p class="modal-price" style="color: #ee4d2d; font-size: 1.2em; font-weight: bold;"></p>
+        </div>
+        <div class="quantity-selector">
+            <span>數量</span>
+            <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+            <input type="number" value="1" min="1" class="quantity-input" id="quantityInput">
+            <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+        </div>
+        <button class="add-to-cart-confirm">確定</button>
+    </div>
+
+    <div class="success-message" id="successMessage">
+        已加入購物車
+    </div>
+
+    <!-- 添加 JavaScript -->
+    <script>
+        // 確認加入購物車
+        document.querySelector('.add-to-cart-confirm').addEventListener('click', function() {
+            // 獲取當前選中的商品資訊
+            const currentProduct = document.querySelector('.add-to-cart.clicked').closest('.product');
+            
+            const productData = {
+                name: currentProduct.querySelector('h3').textContent,
+                price: parseInt(currentProduct.querySelector('.price').textContent.replace('NT$', '')),
+                image: currentProduct.querySelector('img').src,
+                quantity: parseInt(document.getElementById('quantityInput').value)
+            };
+
+            // 從 localStorage 獲取現有購物車數據
+            const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            
+            // 添加新商品
+            cartItems.push(productData);
+            
+            // 保存到 localStorage
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+            hideModal();
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+            
+            // 更新購物車數量
+            const cartCount = document.querySelector('.cart-count');
+            cartCount.textContent = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            
+            // 3秒後隱藏成功提示
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+            
+            // 重置數量為1
+            document.getElementById('quantityInput').value = 1;
+            
+            // 移除標記的類別
+            document.querySelector('.add-to-cart.clicked')?.classList.remove('clicked');
+        });
+
+        // 修改加入購物車按鈕的點擊事件
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const product = this.closest('.product');
+                    const productImage = product.querySelector('img').src;
+                    const productPrice = product.querySelector('.price').textContent;
+                    
+                    // 標記當前點擊的按鈕
+                    document.querySelector('.add-to-cart.clicked')?.classList.remove('clicked');
+                    this.classList.add('clicked');
+                    
+                    // 更新彈窗中的商品資訊
+                    document.querySelector('#cartModal img').src = productImage;
+                    document.querySelector('.modal-price').textContent = productPrice;
+                    
+                    showModal();
+                });
+            });
+
+            // 更新購物車數量
+            const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            document.querySelector('.cart-count').textContent = totalItems;
+        });
+
+        function showModal() {
+            document.getElementById('modalOverlay').style.display = 'block';
+            document.getElementById('cartModal').style.display = 'block';
+        }
+
+        function hideModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('cartModal').style.display = 'none';
+        }
+
+        function decreaseQuantity() {
+            const input = document.getElementById('quantityInput');
+            if (input.value > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        }
+
+        function increaseQuantity() {
+            const input = document.getElementById('quantityInput');
+            input.value = parseInt(input.value) + 1;
+        }
+
+        // 關閉按鈕事件
+        document.querySelector('.close-modal').addEventListener('click', hideModal);
+        document.getElementById('modalOverlay').addEventListener('click', hideModal);
+    </script>
+</body>
+</html> 
